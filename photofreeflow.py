@@ -41,20 +41,24 @@ class pffPhoto:
 currentDir = pffDirectory(sys.argv[1])
 
 class MyPaintingWindow(wx.Window):
+	frame = ""
+	ppfdir = ""
 	def __init__(self, parent, ppfdir):
 		wx.Window.__init__(self, parent)
+		self.frame = parent
+		self.ppfdir = ppfdir
 
-		print ppfdir.getImage(1).getFullFileName()
-		image = wx.Image(ppfdir.getImage(1).getFullFileName(), type=wx.BITMAP_TYPE_ANY)
+		self.Bind(wx.EVT_PAINT, self.on_paint)
+		self.Bind(wx.EVT_SIZE, self.on_paint)
+
+	def on_paint(self, event):
+		image = wx.Image(self.ppfdir.getImage(1).getFullFileName(), type=wx.BITMAP_TYPE_ANY)
 		w, h  = image.GetWidth(), image.GetHeight()
-		ww, wh = parent.GetSizeTuple()
+		ww, wh = self.frame.GetSizeTuple()
 		resize = min(float(wh)/float(h),float(ww)/float(w))
 		scaled_image = image.Scale(w*resize,h*resize)
 		self.bitmap = wx.BitmapFromImage(scaled_image)
-		self.Bind(wx.EVT_PAINT, self.on_paint)
 
-
-	def on_paint(self, event):
 		dc = wx.PaintDC(self)
 		dc.DrawBitmap(self.bitmap, 0, 0, useMask=False)
 
